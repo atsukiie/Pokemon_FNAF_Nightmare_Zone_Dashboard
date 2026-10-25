@@ -1,3 +1,4 @@
+import PlayerName from './PlayerName';
 import type { Battle, Dataset, Player } from '../lib/dashboard';
 import { hpBandLabel, hpPercent, hasHp, stats } from '../lib/dashboard';
 
@@ -67,7 +68,7 @@ export default function AdminOverview({ data, battles, updated, loading, mode, a
         <div className="overview-card-heading"><div><h3>Top players</h3><p>Ranked by current MMR, highest first. Equal ratings are ordered by name.</p></div><span>{ranked.length} rated trainers</span></div>
         {ranked.length ? <div className="leaderboard-list">{ranked.slice(0, 8).map((entry, index) => <button className="leaderboard-row" key={entry.player.id} onClick={() => onPlayer(entry.player)}>
           <span className="rank-number">{index + 1}</span>
-          <span className="leader-player"><strong className="scroll-label" title={entry.player.name}>{entry.player.name}</strong><small className="scroll-label" title={entry.player.pokemon}>{entry.player.pokemon}</small></span>
+          <span className="leader-player"><PlayerName name={entry.player.name} firstSeenAt={entry.player.firstSeenAt} className="scroll-label"/><small className="scroll-label" title={entry.player.pokemon}>{entry.player.pokemon}</small></span>
           <span className="leader-wins"><strong>{entry.player.mmr?.toLocaleString()}</strong><small>MMR</small></span>
           <span className="leader-count">{entry.played} <small>battles</small></span>
           <span className="leader-rate">{entry.played ? rate(entry.winRate) : '—'}</span>
@@ -93,7 +94,7 @@ export default function AdminOverview({ data, battles, updated, loading, mode, a
         {endurance.length ? <div className="endurance-table">
           <div className="endurance-row endurance-header"><span>Player</span><span>Nights survived</span><span>Longest shift</span></div>
           {endurance.map(({ player, survived, longestShift }) => <button className="endurance-row" key={player.id} onClick={() => onPlayer(player)}>
-            <span className="endurance-player"><strong className="scroll-label" title={player.name}>{player.name}</strong><small className="scroll-label" title={player.pokemon}>{player.pokemon}</small></span>
+            <span className="endurance-player"><PlayerName name={player.name} firstSeenAt={player.firstSeenAt} className="scroll-label"/><small className="scroll-label" title={player.pokemon}>{player.pokemon}</small></span>
             <strong>{survived}</strong><strong>{longestShift}</strong>
           </button>)}
         </div> : <p className="overview-empty">No registered players were returned by the game database.</p>}
@@ -103,7 +104,7 @@ export default function AdminOverview({ data, battles, updated, loading, mode, a
       <section className="overview-card hp-card">
         <div className="overview-card-heading"><div><h3>Lowest HP in latest records</h3><p>Players with the least HP at the end of their latest recorded encounters.</p></div></div>
         {hpWatch.length ? <div className="hp-watch-list">{hpWatch.map(player => <div className="hp-watch-row" key={player.id}>
-          <span><strong className="scroll-label" title={player.name}>{player.name}</strong><small className="scroll-label" title={`${player.pokemon} · ${hpBandLabel(player.condition)}`}>{player.pokemon} / {hpBandLabel(player.condition)}</small></span>
+          <span><PlayerName name={player.name} firstSeenAt={player.firstSeenAt} className="scroll-label"/><small className="scroll-label" title={`${player.pokemon} · ${hpBandLabel(player.condition)}`}>{player.pokemon} / {hpBandLabel(player.condition)}</small></span>
           <span className="hp-watch-value">{player.hp}<small> / {player.maxHp} HP</small></span>
           <span className="hp-meter"><i className={player.condition.toLowerCase()} style={{ width: `${Math.min(100, hpPercent(player))}%` }} /></span>
         </div>)}</div> : <p className="overview-empty">No HP snapshots are available yet.</p>}

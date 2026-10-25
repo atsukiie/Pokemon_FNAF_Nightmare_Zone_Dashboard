@@ -143,3 +143,6 @@ body{background:radial-gradient(ellipse at 74% -18%,#39105f66,transparent 44%),r
 
 .composition-pokemon .composition-type-badges>span{color:var(--accent,#bc9ee8)}
 .composition-player-count{position:relative}.composition-owner-list,.composition-row>.composition-player-count .composition-owner-list{position:absolute;right:0;top:100%;z-index:5;width:180px;max-width:65vw;padding:8px;border:1px solid #493553;border-radius:5px;background:#211a2b;color:#e4d9ef;box-shadow:0 5px 18px #0007}
+.beta-badge{position:relative;flex:0 0 auto;padding:3px 7px;border:1px solid #6656ff;border-radius:999px;background:linear-gradient(110deg,#171a3a,#23143a);color:#c9b9ff;font-size:7px;font-weight:800;letter-spacing:.11em;line-height:1.2;box-shadow:0 0 8px #664aff35,inset 0 0 8px #9d66ff16}
+.player-name-with-beta{display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%;vertical-align:middle}.player-name-text{min-width:0;overflow-x:auto;white-space:nowrap;scrollbar-width:thin;scrollbar-color:#a978d8 #211a2b}.player-card-head>.player-name-with-beta{flex:1}.player-table-name>.player-name-with-beta{display:flex}.analytics-recent-row>.player-name-with-beta{flex:1}
+.beta-badge::before{content:'';position:absolute;top:0;left:0;width:6px;height:6px;border-top:2px solid #74c6ff;border-left:2px solid #74c6ff;border-radius:5px 0 0}

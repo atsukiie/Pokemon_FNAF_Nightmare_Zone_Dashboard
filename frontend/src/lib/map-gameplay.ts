@@ -14,9 +14,11 @@ export function mapGameplayRecords(registered: GamePlayer[], records: EncounterR
   const encounters = records.filter(r => r.data_source === 'real').sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id - b.id);
   const byName = new Map(catalog.map(p => [p.name.toLowerCase(), p]));
   const latest = new Map<string, EncounterRecord>();
+  const firstSeen = new Map<string, string>();
   const identities = new Map(registered.map(p => [p.id, p]));
   for (const e of encounters) {
     latest.set(e.player_id, e);
+    if (!firstSeen.has(e.player_id)) firstSeen.set(e.player_id, e.created_at);
     if (!identities.has(e.player_id)) identities.set(e.player_id, { id: e.player_id, display_name: e.player_name });
   }
   const condition = (hp: number | null, max: number | null) => hp === null || !max ? 'Unknown' : hp === 0 ? 'Critical' : hp / max <= .4 ? 'Injured' : hp / max <= .6 ? 'Tired' : 'Healthy';
@@ -30,7 +32,7 @@ export function mapGameplayRecords(registered: GamePlayer[], records: EncounterR
       const info = byName.get(m.pokemon.toLowerCase());
       return { pokemon: m.pokemon, dex: info?.id ?? null, type: title(info?.types[0] || ''), types: info?.types.map(title) ?? [], hp: m.hp_end, maxHp: max };
     }) : [];
-    return { id: p.id, mmr: Number.isFinite(ratings.get(p.id)) ? ratings.get(p.id)! : null, name: p.display_name || e?.player_name || p.id, pokemon: chosen || 'Not recorded', dex: species?.id ?? null, level: null, type: title(species?.types[0] || ''), types: species?.types.map(title) ?? [], hp: e?.hp_end ?? null, maxHp: max, condition: condition(e?.hp_end ?? null, max), active: null, roster, recordedAt: e?.created_at ?? null };
+    return { id: p.id, mmr: Number.isFinite(ratings.get(p.id)) ? ratings.get(p.id)! : null, name: p.display_name || e?.player_name || p.id, pokemon: chosen || 'Not recorded', dex: species?.id ?? null, level: null, type: title(species?.types[0] || ''), types: species?.types.map(title) ?? [], hp: e?.hp_end ?? null, maxHp: max, condition: condition(e?.hp_end ?? null, max), active: null, roster, recordedAt: e?.created_at ?? null, firstSeenAt: firstSeen.get(p.id) ?? null };
   });
   const groups = new Map<string, { id: string; label: string; night: number; order: number }>();
   const labelCounts = new Map<string, number>();

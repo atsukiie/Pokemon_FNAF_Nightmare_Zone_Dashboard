@@ -1,5 +1,6 @@
 'use client';
 import { useId, useState } from 'react';
+import PlayerName from './PlayerName';
 import { average, Battle, Player, Session, stats } from '../lib/dashboard';
 
 type Metric = 'Win rate' | 'Average HP' | 'Battles won' | 'HP lost';
@@ -61,17 +62,17 @@ export default function PerformanceChart({ sessions, battles, players }: { sessi
   const playerMetricSummary = !playerPoints?.length
     ? 'No players have records for this metric in the selected period.'
     : metric === 'Win rate'
-      ? `Highest win rate: ${playerPoints[0].player.name} (${playerPoints[0].wins} wins from ${playerPoints[0].battles} battles, ${valueLabel(playerPoints[0].value)}).`
+      ? <>Highest win rate: <PlayerName name={playerPoints[0].player.name} firstSeenAt={playerPoints[0].player.firstSeenAt}/> ({playerPoints[0].wins} wins from {playerPoints[0].battles} battles, {valueLabel(playerPoints[0].value)}).</>
       : metric === 'HP lost'
-        ? `Lowest average HP lost: ${playerPoints[0].player.name} (${valueLabel(playerPoints[0].value)} across ${playerPoints[0].count} records).`
-        : `${playerPoints[0].player.name} leads in ${metric.toLowerCase()} (${valueLabel(playerPoints[0].value)}).`;
+        ? <>Lowest average HP lost: <PlayerName name={playerPoints[0].player.name} firstSeenAt={playerPoints[0].player.firstSeenAt}/> ({valueLabel(playerPoints[0].value)} across {playerPoints[0].count} records).</>
+        : <><PlayerName name={playerPoints[0].player.name} firstSeenAt={playerPoints[0].player.firstSeenAt}/> leads in {metric.toLowerCase()} ({valueLabel(playerPoints[0].value)}).</>;
   if (players) return <section className="panel performance" id="performance">
     <div className="panel-heading"><h2>PLAYER COMPARISON <span>SELECTED PLAYERS</span></h2><select aria-label="Player comparison metric" value={metric} onChange={e => { setMetric(e.target.value as Metric); setHover(null); }}>{['Win rate', 'Average HP', 'Battles won', 'HP lost'].map(m => <option key={m}>{m}</option>)}</select></div>
     {!playerPoints.length ? <div className="empty">No player battle records in this period.</div> : <>
       <div className="chart-meta"><span><i className="legend-dot"/>{metric}{metric === 'Average HP' && ' (% of starting HP)'}</span><span className="muted">Ranked by selected metric · battle counts shown</span></div>
       <p className="chart-explanation">{metric === 'Win rate' ? 'Ranked by win rate, then by most completed battles when rates are tied.' : 'Compare players using the selected measure. Battle counts show how much history supports each rate.'}</p>
       <div className="player-comparison-list">{playerPoints.map(row => <div className="player-comparison-row" key={row.player.id}>
-        <span className="player-comparison-name scroll-label" title={row.player.name}>{row.player.name}</span>
+        <PlayerName name={row.player.name} firstSeenAt={row.player.firstSeenAt} className="player-comparison-name scroll-label"/>
         <span className="player-comparison-track" role="img" aria-label={`${row.player.name}: ${valueLabel(row.value)}`}><i style={{ width: `${Math.max(0, Math.min(100, metric === 'Battles won' ? row.value / Math.max(1, ...playerPoints.map(point => point.value)) * 100 : row.value))}%` }}/></span>
         <strong className="player-comparison-value">{valueLabel(row.value)}</strong>
         <small>{row.wins}/{row.battles} wins</small>

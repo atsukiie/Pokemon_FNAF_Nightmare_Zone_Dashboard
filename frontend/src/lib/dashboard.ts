@@ -2,7 +2,7 @@ export type Condition = 'Healthy' | 'Injured' | 'Tired' | 'Critical' | 'Unknown'
 export const hpBandLabel = (condition: Condition) => ({ Healthy: 'High HP', Injured: 'Low HP', Tired: 'Mid HP', Critical: '0 HP', Unknown: 'No HP record' })[condition];
 export type UsedPokemon = { pokemon: string; dex: number | null; types: string[] };
 export type RosterMember = { types?: string[]; pokemon: string; dex: number | null; type: string; hp: number | null; maxHp: number | null };
-export type Player = { types?: string[]; mmr?: number | null; id: string; name: string; pokemon: string; dex: number | null; level: number | null; type: string; hp: number | null; maxHp: number | null; condition: Condition; active: boolean | null; roster?: RosterMember[]; recordedAt?: string | null };
+export type Player = { types?: string[]; mmr?: number | null; id: string; name: string; pokemon: string; dex: number | null; level: number | null; type: string; hp: number | null; maxHp: number | null; condition: Condition; active: boolean | null; roster?: RosterMember[]; recordedAt?: string | null; firstSeenAt?: string | null };
 export type Session = { id: string; label: string; night: number; order: number };
 export type Battle = { pokemon?: UsedPokemon[]; id: string; playerId: string; sessionId: string; opponent: string; outcome: 'win' | 'loss'; startingHp: number; remainingHp: number; damageDealt: number; damageReceived: number | null };
 export type Dataset = { players: Player[]; sessions: Session[]; battles: Battle[]; activeRuns?: number | null; metadata?: { source: string; dataSource: string; snapshot: string; activityAvailable: boolean; levelAvailable: boolean; conditionsInferred: boolean; generatedAt: string } };
@@ -35,7 +35,7 @@ sampleData.players.forEach((player, p) => sampleData.sessions.forEach((session, 
 }));
 export const average = (values: number[]) => values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
 export function rosterComposition(players: Player[], battles: Battle[]) {
-  type Owner = { id: string; name: string };
+  type Owner = { id: string; name: string; firstSeenAt?: string | null };
   const entries = new Map<string, UsedPokemon & { owner: Owner }>();
   for (const player of players) {
     const records = battles.filter(battle => battle.playerId === player.id);
@@ -45,7 +45,7 @@ export function rosterComposition(players: Player[], battles: Battle[]) {
       : (player.roster?.length ? player.roster : [player]).filter(member => member.pokemon !== 'Not recorded').map(member => ({
         pokemon: member.pokemon, dex: member.dex, types: member.types?.length ? member.types : [member.type],
       }));
-    for (const member of members) entries.set(`${player.id}:${member.pokemon.toLowerCase()}`, { ...member, owner: { id: player.id, name: player.name } });
+    for (const member of members) entries.set(`${player.id}:${member.pokemon.toLowerCase()}`, { ...member, owner: { id: player.id, name: player.name, firstSeenAt: player.firstSeenAt } });
   }
   const all = [...entries.values()];
   const types = [...new Set(all.flatMap(member => member.types.length ? member.types : ['Unknown']))].sort();

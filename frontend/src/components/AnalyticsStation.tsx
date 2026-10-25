@@ -1,6 +1,7 @@
 'use client';
 
 import Icon from './Icon';
+import PlayerName from './PlayerName';
 import { Battle, historicalEstimate, hpBandLabel, hpPercent, Player, Session, stats } from '../lib/dashboard';
 
 type Props = {
@@ -33,7 +34,7 @@ export default function AnalyticsStation({ players, battles, sessions, activityA
         const hp = hpPercent(player);
         const activity = player.active === null ? 'Activity unknown' : player.active ? 'Active' : 'Inactive';
         return <button className="analytics-progress-row" key={player.id} onClick={() => onPlayer(player)}>
-          <span className="analytics-progress-identity"><strong className="scroll-label" title={player.name}>{player.name}</strong><small className="scroll-label" title={`${player.pokemon} · ${activity}`}>{player.pokemon} · {activity}</small></span>
+          <span className="analytics-progress-identity"><PlayerName name={player.name} firstSeenAt={player.firstSeenAt} className="scroll-label"/><small className="scroll-label" title={`${player.pokemon} · ${activity}`}>{player.pokemon} · {activity}</small></span>
           <span className="analytics-progress-bars"><span className="analytics-progress-caption">Win rate <strong>{played ? `${Math.round(winRate)}%` : 'No battles'}</strong></span><span className="analytics-progress-track"><i className="win" style={{ width: `${played ? winRate : 0}%` }}/></span><span className="analytics-progress-caption">Latest HP snapshot <strong>{player.hp !== null && player.maxHp ? `${player.hp}/${player.maxHp} · ${hpBandLabel(player.condition)}` : 'Not recorded'}</strong></span><span className="analytics-progress-track"><i className="hp" style={{ width: `${hp}%` }}/></span></span>
           <span className="analytics-progress-record"><strong>{wins}/{played}</strong><small>wins / battles</small></span><Icon name="chevron" size={14}/>
         </button>;
@@ -49,7 +50,7 @@ export default function AnalyticsStation({ players, battles, sessions, activityA
 
       <section className="panel analytics-station-panel">
         <div className="panel-heading"><h2><Icon name="trend"/> RECENT SESSION</h2><span className="muted tiny">{recentSession ? `Night ${recentSession.night} · ${recentSession.label}` : 'No session records'}</span></div>
-        {recentSession ? <div className="analytics-recent-body"><strong className="analytics-recent-total">{stats(recentBattles).wins}<small> wins from {recentBattles.length} battles</small></strong>{recentByPlayer.map(({ player, wins, played, winRate }) => <div className="analytics-recent-row" key={player.id}><span className="scroll-label" title={player.name}>{player.name}</span><span>{wins}/{played} wins</span><strong>{Math.round(winRate)}%</strong></div>)}</div> : <div className="empty">Record battles to see recent performance.</div>}
+        {recentSession ? <div className="analytics-recent-body"><strong className="analytics-recent-total">{stats(recentBattles).wins}<small> wins from {recentBattles.length} battles</small></strong>{recentByPlayer.map(({ player, wins, played, winRate }) => <div className="analytics-recent-row" key={player.id}><PlayerName name={player.name} firstSeenAt={player.firstSeenAt} className="scroll-label"/><span>{wins}/{played} wins</span><strong>{Math.round(winRate)}%</strong></div>)}</div> : <div className="empty">Record battles to see recent performance.</div>}
       </section>
     </div>
 
@@ -57,7 +58,7 @@ export default function AnalyticsStation({ players, battles, sessions, activityA
       <div className="panel-heading"><h2><Icon name="bolt"/> HISTORICAL PERFORMANCE INSIGHTS</h2><span className="ai-label">BATTLE RECORDS</span></div>
       <div className="analytics-forecast-body">
         <div><h3>Historical win estimate</h3><p>{historySummary}</p><small>This summarizes past battles; it is not a validated next-encounter prediction.</small></div>
-        <div><h3>Observed highlights</h3>{topPlayer || toughestEncounter ? <div className="analytics-insight-fallback">{topPlayer && <p><strong>Top win rate:</strong> {topPlayer.player.name} won {topPlayer.wins} of {topPlayer.played} battles ({Math.round(topPlayer.winRate)}%).{topPlayer.played < 5 ? ' Small sample.' : ''}</p>}{toughestEncounter && <p><strong>Toughest encounter:</strong> {toughestEncounter.opponent} had {toughestEncounter.wins} wins from {toughestEncounter.played} battles ({Math.round(toughestEncounter.winRate)}%).</p>}</div> : <p>No completed battles are available for this selection yet.</p>}<small>Counts are shown to give each rate context.</small></div>
+        <div><h3>Observed highlights</h3>{topPlayer || toughestEncounter ? <div className="analytics-insight-fallback">{topPlayer && <p><strong>Top win rate:</strong> <PlayerName name={topPlayer.player.name} firstSeenAt={topPlayer.player.firstSeenAt}/> won {topPlayer.wins} of {topPlayer.played} battles ({Math.round(topPlayer.winRate)}%).{topPlayer.played < 5 ? ' Small sample.' : ''}</p>}{toughestEncounter && <p><strong>Toughest encounter:</strong> {toughestEncounter.opponent} had {toughestEncounter.wins} wins from {toughestEncounter.played} battles ({Math.round(toughestEncounter.winRate)}%).</p>}</div> : <p>No completed battles are available for this selection yet.</p>}<small>Counts are shown to give each rate context.</small></div>
       </div>
     </section>
   </div>;

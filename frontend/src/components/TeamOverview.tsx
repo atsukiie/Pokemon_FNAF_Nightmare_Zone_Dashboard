@@ -2,16 +2,17 @@
 
 import { useState } from 'react';
 import Icon from './Icon';
+import PlayerName from './PlayerName';
 import { average, Battle, hasHp, hpPercent, Player, Session, stats, rosterComposition } from '../lib/dashboard';
 
 type Props = { players: Player[]; battles: Battle[]; sessions: Session[]; historical?: boolean; onPlayer: (player: Player) => void; onEvidence: (text: string) => void };
 const hp = hpPercent;
-function PlayerCount({ label, owners }: { label: string; owners: { id: string; name: string }[] }) {
+function PlayerCount({ label, owners }: { label: string; owners: { id: string; name: string; firstSeenAt?: string | null }[] }) {
   const [expanded, setExpanded] = useState(false);
   const names = owners.map(owner => owner.name).join('\n');
   return <span className="composition-player-count">
     <button type="button" title={names} aria-label={`${label}: ${owners.map(owner => owner.name).join(', ')}`} aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{label}</button>
-    {expanded && <span className="composition-owner-list">{owners.map(owner => <span key={owner.id}>{owner.name}</span>)}</span>}
+    {expanded && <span className="composition-owner-list">{owners.map(owner => <PlayerName key={owner.id} name={owner.name} firstSeenAt={owner.firstSeenAt}/>)}</span>}
   </span>;
 }
 
@@ -44,7 +45,7 @@ export default function TeamOverview({ players, battles, sessions, onPlayer, onE
         </div>)}{!composition.groups.length && <div className="empty">No recorded Pokémon teams in this selection.</div>}</div>
         <p className="team-panel-note">Based on teams in selected battles. Each Pokémon is counted once per player and appears under both of its types. Expand a type to see the Pokémon. Older records without team history use the saved roster.</p>
       </section>
-      <section className="panel contribution-panel"><div className="panel-heading"><h2><Icon name="chart"/> MEMBER COMPARISON</h2><select aria-label="Team comparison metric" value={metric} onChange={e => setMetric(e.target.value)}>{['Win rate', 'Current HP', 'Battles won'].map(m => <option key={m}>{m}</option>)}</select></div><div className="contribution-list">{rows.map(row => <button className="contribution-row" key={row.player.id} onClick={() => onPlayer(row.player)}><span className="contribution-name"><span className="scroll-label" title={row.player.name}>{row.player.name}</span><small className="scroll-label" title={row.player.pokemon}>{row.player.pokemon}</small></span><span className="contribution-bar"><i style={{ width: `${row.value / max * 100}%` }}/></span><strong>{(metric === 'Win rate' && !row.played) || (metric === 'Current HP' && !hasHp(row.player)) ? '—' : `${Math.round(row.value)}${metric === 'Battles won' ? '' : '%'}`}</strong><Icon name="chevron" size={13}/></button>)}{!rows.length && <div className="empty">No members to compare.</div>}</div><p className="team-panel-note">{metric === 'Current HP' ? 'Recorded HP as a percentage of each Pokémon’s starting HP.' : `Based on ${total.played} battles in the selected period.`} Select a member to inspect their records.</p></section>
+      <section className="panel contribution-panel"><div className="panel-heading"><h2><Icon name="chart"/> MEMBER COMPARISON</h2><select aria-label="Team comparison metric" value={metric} onChange={e => setMetric(e.target.value)}>{['Win rate', 'Current HP', 'Battles won'].map(m => <option key={m}>{m}</option>)}</select></div><div className="contribution-list">{rows.map(row => <button className="contribution-row" key={row.player.id} onClick={() => onPlayer(row.player)}><span className="contribution-name"><PlayerName name={row.player.name} firstSeenAt={row.player.firstSeenAt} className="scroll-label"/><small className="scroll-label" title={row.player.pokemon}>{row.player.pokemon}</small></span><span className="contribution-bar"><i style={{ width: `${row.value / max * 100}%` }}/></span><strong>{(metric === 'Win rate' && !row.played) || (metric === 'Current HP' && !hasHp(row.player)) ? '—' : `${Math.round(row.value)}${metric === 'Battles won' ? '' : '%'}`}</strong><Icon name="chevron" size={13}/></button>)}{!rows.length && <div className="empty">No members to compare.</div>}</div><p className="team-panel-note">{metric === 'Current HP' ? 'Recorded HP as a percentage of each Pokémon’s starting HP.' : `Based on ${total.played} battles in the selected period.`} Select a member to inspect their records.</p></section>
     </div>
 
 
