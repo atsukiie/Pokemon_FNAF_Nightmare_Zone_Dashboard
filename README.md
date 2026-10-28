@@ -99,7 +99,7 @@ All battle statistics, recommendations, and correlations are derived from the se
 
 ### Connect the separate game repository
 
-The existing `../PokemonzApp` game repository was inspected read-only. Its source and database schema were not modified. The integration uses its existing `players`, `encounters`, `pokemon`, and related `turns` records. It does not require the old `nz_*` schema or an additional database migration.
+The integration uses the existing `../PokemonzApp` game's `players`, `encounters`, `pokemon`, and related `turns` records. It does not require the old `nz_*` schema or an additional database migration.
 
 1. Configure `backend/.env` using the existing game environment path or the same Supabase server credentials.
 2. Set `NEXT_PUBLIC_API_URL=http://127.0.0.1:3002/api` in `frontend/.env` (or `.env.local`). Restart the frontend if needed. Set `FRONTEND_URL` on the backend to the frontend origin.
@@ -109,7 +109,7 @@ The existing `../PokemonzApp` game repository was inspected read-only. Its sourc
 
 `GET /api/dashboard` returns `{ players, sessions, battles, metadata }` after enforcing local-development access or a valid access-code session. Service-role credentials remain on the server; this adapter only reads the game tables. It filters encounters to `data_source = real`, preserves registered players with no completed battles, groups chart sessions by game session + night, and includes the saved Pokémon roster. Simulated battles never mix with real gameplay. Missing or expired sessions return 401, and unavailable database records return 503. Refresh failures retain the last successful snapshot with an error message.
 
-Keyset pagination avoids silently truncating tables at Supabase's usual row limit. Each table is capped at 20,000 records; larger datasets need server-side period aggregation. HP lost is summed from the actual per-turn `hp_before - hp_after` changes, which caps overkill at the remaining HP and still handles switches between teammates. This includes any recorded HP penalties. Missing historical turns produce unavailable HP-lost data, not an invented zero. The game currently has no item consumption; legacy non-null item markers are not treated as complete item counts. The legacy alternate-schema endpoint is retained at `/api/dashboard/legacy` and is not used by this integration.
+Keyset pagination avoids silently truncating tables at Supabase's usual row limit. Each table is capped at 20,000 records; larger datasets need server-side period aggregation. HP lost is summed from the actual per-turn `hp_before - hp_after` changes, which caps overkill at the remaining HP and still handles switches between teammates. This includes any recorded HP penalties. Missing historical turns produce unavailable HP-lost data, not an invented zero. Item consumption is not recorded, so item counts remain unavailable. The legacy alternate-schema endpoint is retained at `/api/dashboard/legacy` and is not used by this integration.
 
 Completed game encounters appear after saving to Supabase and the next dashboard refresh (30 seconds by default). Ongoing runs are not exposed by the game's aggregate API as individual records, so current presence/ongoing HP cannot be inferred from it. No game write actions, account changes, or database migrations were performed.
 

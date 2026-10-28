@@ -7,7 +7,7 @@ const { mapGameplayRecords } = require('../backend/dist/gameplay/map-gameplay.js
 const { GameplayService } = require('../backend/dist/gameplay/gameplay.service.js');
 const { ConfigService } = require('@nestjs/config');
 const catalog = [{ id: 6, name: 'Charizard', types: ['fire', 'flying'] }, { id: 9, name: 'Blastoise', types: ['water'] }];
-const encounter = { id: 1, run_id: 'run', session_id: 's1', player_id: '001', player_name: 'Trainer', night: 1, team: 'Charizard, Blastoise', team_state: [{ pokemon: 'Charizard', hp_end: 0 }, { pokemon: 'Blastoise', hp_end: 179 }], opponent: 'Freddy', hp_start: 620, hp_end: 179, damage_dealt: 1530, item_used: null, outcome: 'win', data_source: 'real', created_at: '2026-10-20T08:00:00Z', turn_count: 2, turns: [{ turn_number: 1, active_pokemon: 'Charizard', damage_taken: 620 }, { turn_number: 2, active_pokemon: 'Blastoise', damage_taken: 441 }] };
+const encounter = { id: 1, run_id: 'run', session_id: 's1', player_id: '001', player_name: 'Trainer', night: 1, team: 'Charizard, Blastoise', team_state: [{ pokemon: 'Charizard', hp_end: 0 }, { pokemon: 'Blastoise', hp_end: 179 }], opponent: 'Freddy', hp_start: 620, hp_end: 179, damage_dealt: 1530, outcome: 'win', data_source: 'real', created_at: '2026-10-20T08:00:00Z', turn_count: 2, turns: [{ turn_number: 1, active_pokemon: 'Charizard', damage_taken: 620 }, { turn_number: 2, active_pokemon: 'Blastoise', damage_taken: 441 }] };
 
 test('saved teams preserve both types and include each species only once per battle', () => {
   const data = mapGameplayRecords([], [encounter], catalog);
@@ -47,8 +47,8 @@ test('real and simulated records stay separate and nights do not mix within a se
   assert.notEqual(data.battles[0].sessionId, data.battles[1].sessionId);
   assert.equal(isDataset(data), true);
 });
-test('missing historical turns and unsupported item counts remain unavailable', () => {
-  const data = mapGameplayRecords([], [{ ...encounter, turns: [], item_used: 'legacy marker' }], catalog);
+test('missing historical turns and unrecorded item counts remain unavailable', () => {
+  const data = mapGameplayRecords([], [{ ...encounter, turns: [] }], catalog);
   assert.equal(data.battles[0].damageReceived, null);
   assert.equal(data.battles[0].itemsUsed, null);
   assert.equal(stats(data.battles).damageRecords, 0);

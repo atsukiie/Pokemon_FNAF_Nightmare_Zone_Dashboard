@@ -2,10 +2,10 @@ export type Condition = 'Healthy' | 'Injured' | 'Tired' | 'Critical' | 'Unknown'
 export const hpBandLabel = (condition: Condition) => ({ Healthy: 'High HP', Injured: 'Low HP', Tired: 'Mid HP', Critical: '0 HP', Unknown: 'No HP record' })[condition];
 export type UsedPokemon = { pokemon: string; dex: number | null; types: string[] };
 export type RosterMember = { types?: string[]; pokemon: string; dex: number | null; type: string; hp: number | null; maxHp: number | null };
-export type Player = { types?: string[]; mmr?: number | null; id: string; name: string; pokemon: string; dex: number | null; level: number | null; type: string; hp: number | null; maxHp: number | null; condition: Condition; active: boolean | null; roster?: RosterMember[]; recordedAt?: string | null; firstSeenAt?: string | null };
+export type Player = { types?: string[]; mmr?: number | null; id: string; name: string; pokemon: string; dex: number | null; level: number | null; type: string; hp: number | null; maxHp: number | null; condition: Condition; active: boolean | null; roster?: RosterMember[]; recordedAt?: string | null; firstSeenAt?: string | null; rosterRecovered?: boolean };
 export type Session = { id: string; label: string; night: number; order: number };
 export type Battle = { pokemon?: UsedPokemon[]; id: string; playerId: string; sessionId: string; opponent: string; outcome: 'win' | 'loss'; startingHp: number; remainingHp: number; damageDealt: number; damageReceived: number | null };
-export type Dataset = { players: Player[]; sessions: Session[]; battles: Battle[]; activeRuns?: number | null; metadata?: { source: string; dataSource: string; snapshot: string; activityAvailable: boolean; levelAvailable: boolean; conditionsInferred: boolean; generatedAt: string } };
+export type Dataset = { players: Player[]; sessions: Session[]; battles: Battle[]; activeRuns?: number | null; metadata?: { source: string; dataSource: string; snapshot: string; activityAvailable: boolean; levelAvailable: boolean; conditionsInferred: boolean; recoveredRosterCount?: number; generatedAt: string } };
 export const hasHp = (p: { hp: number | null; maxHp: number | null }) => p.hp !== null && p.maxHp !== null && p.maxHp > 0;
 export const hpPercent = (p: { hp: number | null; maxHp: number | null }) => hasHp(p) ? p.hp! / p.maxHp! * 100 : 0;
 export const sampleData: Dataset = {
@@ -39,7 +39,7 @@ export function rosterComposition(players: Player[], battles: Battle[]) {
   const entries = new Map<string, UsedPokemon & { owner: Owner }>();
   for (const player of players) {
     const records = battles.filter(battle => battle.playerId === player.id);
-    if (!records.length) continue;
+    if (!records.length && !player.rosterRecovered) continue;
     const members: UsedPokemon[] = records.some(record => record.pokemon !== undefined)
       ? records.flatMap(record => record.pokemon ?? [])
       : (player.roster?.length ? player.roster : [player]).filter(member => member.pokemon !== 'Not recorded').map(member => ({

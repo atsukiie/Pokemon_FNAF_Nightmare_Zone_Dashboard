@@ -100,6 +100,7 @@ body{font-size:14px}.nav-label{font-size:10px}.nav-item{font-size:13px}.brand-su
 
 /* Neon sci-fi palette inspired by the shared game dashboard reference. */
 :root{--bg:#050a16;--panel:#091122;--muted:#8793ad;--text:#ecf3ff;--purple:#b56cff;--green:#24e0b1;--blue:#39c8ff;--orange:#ffad52;--red:#ff587a}
+.roster-recovered-badge{margin:0 10px;padding:5px 7px;border:1px solid #2f6b70;border-radius:4px;background:#102b31;color:#83e2d3;font-size:9px;line-height:1.35}
 body{background:radial-gradient(ellipse at 74% -18%,#39105f66,transparent 44%),radial-gradient(ellipse at 8% 40%,#063b5540,transparent 34%),var(--bg)}
 .sidebar{background:linear-gradient(165deg,#0c1022,#070c18 52%,#060a14);border-right-color:#202b45;box-shadow:8px 0 32px #02061166}
 .main-shell{background:transparent}.topbar{background:#070c18dd;border-bottom-color:#202b45;backdrop-filter:blur(14px)}
